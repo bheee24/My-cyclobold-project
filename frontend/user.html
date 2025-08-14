@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link
+    href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css"
+    rel="stylesheet"
+/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="user.css">
+</head>
+<body>
+ <nav>
+    <div class="nav_header">
+      <div class="nav_logo">
+      <a href="user.html">SPARKLES</a>
+
+       </div>
+      <div class="nav_menu_btn" id="menu-btn">
+       <i class="ri-menu-line"></i>
+      </div>
+    </div>
+
+    <div>
+    <ul class="nav_links" id="nav-links">
+      
+    <li><a href="#catalogue">CATALOGUE</a></li>
+    <li><a href="#fashion">FASHION</a></li>
+    <li><a href="#favorite">FAVORITE</a></li>
+    <li><a href="#lifestyle">LIFESTYLE</a></li>
+   
+    <li>
+  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cartModal">
+    View Cart <i class="ri-shopping-bag-line"></i>
+  </button>
+</li>
+
+    <li><a href=""><h3>Welcome <span id="user-info"></span></h3></a></li>
+    <li><a href="#" onclick="logOutUser(event)">Log Out</a></li>
+    
+   </ul>
+   
+   </div>
+ </nav>
+ 
+<header>
+ <!-- <h1 class="text-center text-primary">Products</h1> -->
+ <div id="product-list">
+
+</div>
+</header>
+ <footer>
+  <div class="section_container footer_container">
+    <div class="footer_col">
+      <div class="footer_logo">
+        <a href="#">SPARKLES</a>
+      </div>
+      <P>Complete your fashion with awesome clothes from us</P>
+      <ul class="footer_socials">
+        <li>
+          <a href=""><i class="ri-facebook-line"></i></a>
+        </li>
+        <li>
+          <a href=""><i class="ri-instagram-line"></i></a>
+        </li>
+        <li>
+          <a href=""><i class="ri-twitter-fill"></i></i></a>
+        </li>
+        <li>
+          <a href=""><i class="ri-linkedin-box-fill"></i></i></a>
+        </li>
+        
+      </ul>
+    </div>
+     <div class="footer_col">
+      <h4>Company</h4>
+      <ul class="footer_links">
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact us</a></li>
+        <li><a href="#">Support</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul>
+    </div>
+    <div class="footer_col">
+      <h4>Quick link</h4>
+      <ul class="footer_links">
+        <li><a href="#">location</a></li>
+        <li><a href="#">order Tracking</a></li>
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">FAQS</a></li>
+      </ul>
+    </div>
+    <div class="footer_col">
+      <h4>legal</h4>
+      <ul class="footer_links">
+        <li><a href="#">Terms & conditions</a></li>
+        <li><a href="#">Privacy policy</a></li>
+       
+      </ul>
+    </div>
+  </div>
+  <div class="footer_bar">
+    Copyright 2025 SPARKLES.
+  </div>
+</footer>
+  
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content ">
+      <div class="modal-header">
+        <h5 class="modal-title">Your Cart</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div id="cart-items" class="row gy-4"></div>
+        <p id="empty-message" class="text-muted text-center">Your cart is empty.</p>
+        <h4 id="cart-total" class="mt-4 fw-bold text-end"></h4>
+      </div>
+
+      <div class="modal-footer justify-content-between">
+        <button id="clear-cart" class="btn btn-danger">Clear Cart</button>
+        <a href="checkout.html" class="btn btn-success">Proceed to Checkout</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toast-clear" class="toast bg-success text-white" role="alert" data-bs-delay="2000">
+    <div class="toast-body">Cart cleared successfully!</div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/localforage/dist/localforage.min.js"></script>
+
+
+<script src="/js/user.js"></script>
+<script type="module" src="js/cart.js"></script>
+
+
+  
+</body>
+</html>
