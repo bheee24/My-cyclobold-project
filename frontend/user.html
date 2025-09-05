@@ -32,11 +32,11 @@
     <li><a href="#favorite">FAVORITE</a></li>
     <li><a href="#lifestyle">LIFESTYLE</a></li>
    
-    <li>
-  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cartModal">
-    View Cart <i class="ri-shopping-bag-line"></i>
-  </button>
-</li>
+     <li>
+      <a href="#" data-bs-toggle="modal" data-bs-target="#cartModal">
+        View Cart <i class="ri-shopping-bag-line"></i>
+      </a>
+    </li>
 
     <li><a href=""><h3>Welcome <span id="user-info"></span></h3></a></li>
     <li><a href="#" onclick="logOutUser(event)">Log Out</a></li>
@@ -123,7 +123,9 @@
 
       <div class="modal-footer justify-content-between">
         <button id="clear-cart" class="btn btn-danger">Clear Cart</button>
-        <a href="checkout.html" class="btn btn-success">Proceed to Checkout</a>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+  Proceed to Checkout
+</button>
       </div>
     </div>
   </div>
@@ -136,14 +138,176 @@
   </div>
 </div>
 
+<!-- Checkout Modal -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Checkout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row">
+          <!-- Shipping Information -->
+          <div class="col-md-6">
+            <h4>Shipping Information</h4>
+            <form id="checkout-form">
+              <div class="mb-3">
+                <label for="fullName" class="form-label">Full Name</label>
+                <input type="text" id="fullName" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <textarea id="address" class="form-control" rows="3" required></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="tel" id="phone" class="form-control" required>
+              </div>
+            </form>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="col-md-6">
+            <h4>Order Summary</h4>
+            <ul class="list-group mb-3" id="order-summary"></ul>
+            <h5 class="text-end mt-3" id="total-price">Total: $0</h5>
+            <button class="btn btn-primary w-100 mt-3" id="place-order" data-bs-toggle="modal" data-bs-target="#paymentModal">Proceed to Pay</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- Payment Modal (nested modal) -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="paymentForm" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Payment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="amount" class="form-label">Amount ($)</label>
+          <input type="number" id="amount" class="form-control" readonly>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success w-100">Pay with Paystack</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast for confirmation -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="order-toast" class="toast bg-success text-white" role="alert" data-bs-delay="3000">
+    <div class="toast-body">Order placed successfully!</div>
+  </div>
+</div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/localforage/dist/localforage.min.js"></script>
 
 
-<script src="/js/user.js"></script>
+<script src="js/user.js"></script>
 <script type="module" src="js/cart.js"></script>
+
+ <script>
+    // Attempt to safely close page
+    function tryClosePage() {
+      if (window.opener) {
+        window.close(); // Works if opened via JS
+      } else {
+        console.log("Cannot close this tab automatically due to browser restrictions.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const orderList = document.getElementById('order-summary');
+      const totalDisplay = document.getElementById('total-price');
+      const amountInput = document.getElementById('amount');
+      const cart = await localforage.getItem("cart") || [];
+
+      if (cart.length === 0) {
+        orderList.innerHTML = '<li class="list-group-item text-center text-danger">Your cart is empty</li>';
+        document.getElementById('place-order').disabled = true;
+        return;
+      }
+
+      let total = 0;
+      cart.forEach(item => {
+        const quantity = item.quantity || 1;
+        const subtotal = item.price * quantity;
+        total += subtotal;
+
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `
+          <div>
+            <strong>${item.name}</strong><br>
+            <small>Qty: ${quantity}</small>
+          </div>
+          <span>$${subtotal.toLocaleString()}</span>
+        `;
+        orderList.appendChild(li);
+      });
+
+      totalDisplay.textContent = `Total: $${total.toLocaleString()}`;
+      amountInput.value = total;
+
+      // PAYSTACK SUBMIT
+      document.getElementById("paymentForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const name = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const address = document.getElementById('address').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const amount = document.getElementById("amount").value.trim();
+
+        if (!name || !email || !address || !phone || !amount) {
+          alert("Please fill in all fields and ensure cart is not empty.");
+          return;
+        }
+
+        try {
+          const response = await fetch("http://localhost:3456/create-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: email,
+              amount: amount * 100 // Convert to Kobo
+            })
+          });
+
+          const data = await response.json();
+
+          if (data && data.data && data.data.authorization_url) {
+            window.location.href = data.data.authorization_url;
+          } else {
+            alert("Unable to initiate payment. Try again.");
+          }
+        } catch (err) {
+          console.error("Payment Error:", err);
+          alert("An error occurred while initiating payment.");
+        }
+      });
+    });
+  </script>
 
 
   

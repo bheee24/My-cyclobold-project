@@ -3,7 +3,7 @@
     "id": 1,
     "name": "Floral Summer Dress",
     "price": 49.99,
-    "image": "/arrival image/joyceee6.jpg",
+    "image": "/frontend/arrival image/joyceee6.jpg",
     "category": "Dresses"
   }
    
@@ -11,28 +11,28 @@
     "id": 2,
     "name": "abtract gown",
     "price": 49.99,
-    "image": "/arrival image/photo_5022028207955750545_y.jpg",
+    "image": "/frontend/arrival image/photo_5022028207955750545_y.jpg",
     "category": "Dresses"
   }
 ,{
     "id": 3,
     "name": "abtract gown",
     "price": 49.99,
-    "image": "/arrival image/photo_5120933006905814609_y.jpg",
+    "image": "/frontend/arrival image/photo_5120933006905814609_y.jpg",
     "category": "Dresses"
   }
   ,{
     "id": 4,
     "name": "abtract gown",
     "price": 49.99,
-    "image": "/arrival image/photo_5022028207955750545_y.jpg",
+    "image": "/frontend/arrival image/photo_5022028207955750545_y.jpg",
     "category": "Dresses"
   }
 ,{
     "id": 5,
     "name": "abtract gown",
     "price": 49.99,
-    "image": "/arrival image/photo_5022028207955750545_y.jpg",
+    "image": "/frontend/arrival image/photo_5022028207955750545_y.jpg",
     "category": "Dresses"
   }
   

@@ -50,11 +50,12 @@
       <form id="paymentForm" class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">Confirm Payment</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <!-- Attempt to close page if possible -->
+          <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="tryClosePage()"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label for="amount" class="form-label">Amount (₦)</label>
+            <label for="amount" class="form-label">Amount ($)</label>
             <input type="number" id="amount" class="form-control" readonly>
           </div>
         </div>
@@ -77,6 +78,15 @@
   <script src="https://cdn.jsdelivr.net/npm/localforage/dist/localforage.min.js"></script>
 
   <script>
+    // Attempt to safely close page
+    function tryClosePage() {
+      if (window.opener) {
+        window.close(); // Works if opened via JS
+      } else {
+        console.log("Cannot close this tab automatically due to browser restrictions.");
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
       const orderList = document.getElementById('order-summary');
       const totalDisplay = document.getElementById('total-price');
@@ -126,7 +136,7 @@
         }
 
         try {
-          const response = await fetch("http://localhost:3456/paystack", {
+          const response = await fetch("http://localhost:3456/create-payment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

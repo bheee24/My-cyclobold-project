@@ -1,6 +1,5 @@
-// ✅ Render the cart content from localforage
+// 🛒 Function to show everything inside the shopping cart
 const renderCart = async () => {
-  // 🎯 Get DOM elements for cart UI
   const cartItemsContainer = document.getElementById('cart-items');
   const emptyMsg = document.getElementById('empty-message');
   const totalDisplay = document.getElementById('cart-total');
@@ -8,12 +7,12 @@ const renderCart = async () => {
   const toastEl = document.getElementById('toast-clear');
   const checkoutBtn = document.getElementById('checkout-btn');
 
-  // 🛒 Load cart data from localForage (or initialize as empty array if not found)
-  const cart = await localforage.getItem("cart") || [];
-  cartItemsContainer.innerHTML = ''; // Clear previous cart items
+  // Get cart from storage (or empty list if none)
+  let cart = await localforage.getItem("cart") || [];
+  cartItemsContainer.innerHTML = '';
   let total = 0;
 
-  // 🕳️ If the cart is empty, show "empty" message and hide total/clear/checkout UI
+  // If cart is empty, show message + hide buttons
   if (cart.length === 0) {
     emptyMsg.style.display = 'block';
     totalDisplay.textContent = '';
@@ -22,20 +21,16 @@ const renderCart = async () => {
     return;
   }
 
-  // ✅ Show cart UI (cart is not empty)
+  // Show buttons if we have items
   emptyMsg.style.display = 'none';
   if (clearBtn) clearBtn.style.display = 'inline-block';
   if (checkoutBtn) checkoutBtn.style.display = 'inline-block';
 
-  // 🧱 Loop through each product in the cart and render them
+  // Show each item
   for (const item of cart) {
-    // Set default quantity to 1 if not already defined
-    if (!item.quantity) item.quantity = 1;
-
-    // Calculate running total
+    if (!item.quantity) item.quantity = 1; // Default to 1 if missing
     total += item.price * item.quantity;
 
-    // Create a Bootstrap card element for each cart item
     const col = document.createElement('div');
     col.className = 'col-md-4';
     col.innerHTML = `
@@ -53,64 +48,55 @@ const renderCart = async () => {
         </div>
       </div>
     `;
-    cartItemsContainer.appendChild(col); // Add item card to the cart container
+    cartItemsContainer.appendChild(col);
   }
 
-  // 💵 Show total cart value
   totalDisplay.textContent = `Total: $${total.toLocaleString()}`;
 };
 
-// ✅ Wait for the DOM to fully load before initializing event handlers
 document.addEventListener('DOMContentLoaded', async () => {
-  await renderCart(); // Initial cart rendering on page load
+  await renderCart();
 
   const cartItemsContainer = document.getElementById('cart-items');
   const clearBtn = document.getElementById('clear-cart');
   const toastEl = document.getElementById('toast-clear');
 
-  // 📦 Handle quantity changes and item removal inside the cart
+  // Listen for + / - / remove clicks
   cartItemsContainer.addEventListener('click', async (e) => {
-    const id = parseInt(e.target.getAttribute('data-id')); // Get clicked item's ID
+    const id = e.target.getAttribute('data-id'); // <-- KEEP AS STRING
     let cart = await localforage.getItem("cart") || [];
 
-    // ➕➖ Handle increase/decrease button clicks
     if (e.target.classList.contains('quantity-btn')) {
       const action = e.target.getAttribute('data-action');
-      const index = cart.findIndex(item => item.id === id);
+      const index = cart.findIndex(item => String(item.id) === String(id));
 
       if (index !== -1) {
         if (action === 'increase') {
-          cart[index].quantity++;
+          cart[index].quantity = (cart[index].quantity || 1) + 1;
         }
         if (action === 'decrease' && cart[index].quantity > 1) {
           cart[index].quantity--;
         }
-
-        // ✅ Save updated cart and re-render UI
         await localforage.setItem("cart", cart);
         await renderCart();
       }
     }
 
-    // ❌ Handle remove button click
     if (e.target.classList.contains('remove-btn')) {
-      // Filter out the item and update storage
-      cart = cart.filter(item => item.id !== id);
+      cart = cart.filter(item => String(item.id) !== String(id));
       await localforage.setItem("cart", cart);
       await renderCart();
     }
   });
 
-  // 🧹 Handle clear cart button click
   if (clearBtn) {
     clearBtn.addEventListener('click', async () => {
-      await localforage.removeItem("cart"); // Remove cart from storage
-      new bootstrap.Toast(toastEl).show();  // Show toast notification
-      await renderCart();                  // Refresh UI
+      await localforage.removeItem("cart");
+      new bootstrap.Toast(toastEl).show();
+      await renderCart();
     });
   }
 
-  // 🔁 Re-render cart every time the modal opens (to reflect latest updates)
   const cartModal = document.getElementById("cartModal");
   if (cartModal) {
     cartModal.addEventListener("show.bs.modal", async () => {

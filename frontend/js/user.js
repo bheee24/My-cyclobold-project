@@ -1,87 +1,75 @@
-window.addEventListener('DOMContentLoaded', async function (event) {
-    let user_info_id = this.document.querySelector("#user-info");
-    user_info_id.innerHTML = "<small>please wait...</small>";
+// ===== When the page is fully ready =====
+window.addEventListener("DOMContentLoaded", async () => {
+  // Grab the spot where we show the user’s name
+  let user_info_id = document.querySelector("#user-info");
+  user_info_id.innerHTML = "<small>please wait...</small>";
 
-    // ✅ Correct: get the saved user info
-    let result = await localforage.getItem("_Sparkles_user");
+  // 👉 Try to get the saved user info from localforage
+  let result = await localforage.getItem("_Sparkles_user");
 
-    if (result) {
-        // const firstname = result["firstname"]; // 👈 safer
-        // console.log(result.firstname); // ✅ Corrected here
-        // user_info_id.innerHTML = firstname;
-          console.log("Full result from localForage:", result); // <--- ADD THIS
+  if (result) {
+    // If we found something, show the firstname
+    console.log("Full result from localForage:", result);
     const firstname = result["firstname"];
     console.log("Firstname:", firstname);
     user_info_id.innerHTML = firstname;
-    } else {
-        location.href = "index.html"; // Redirect if not logged in
-    }
+  } else {
+    // If not logged in, send them back to homepage
+    location.href = "index.html";
+  }
 });
 
-
-
-// ===== Responsive Menu (Mobile Navigation) =====
-
-// Get the menu button and the nav links
+// ===== Mobile Menu Toggle =====
 const menuBtn = document.querySelector("#menu-btn");
 const navLinks = document.querySelector("#nav-links");
 const menuBtnIcon = menuBtn.querySelector("i");
 
-// When the menu button is clicked, open or close the menu
-menuBtn.addEventListener("click", (e) => {
-    navLinks.classList.toggle("open"); // Toggle the class to show/hide menu
+// When user taps menu button
+menuBtn.addEventListener("click", () => {
+  navLinks.classList.toggle("open"); // open or close menu
 
-    // Change the menu icon depending on whether it's open or closed
-    const isOpen = navLinks.classList.contains("open");
-    menuBtnIcon.setAttribute("class", isOpen ? "ri-close-line" : "ri-menu-line");
+  // change icon based on state
+  const isOpen = navLinks.classList.contains("open");
+  menuBtnIcon.setAttribute("class", isOpen ? "ri-close-line" : "ri-menu-line");
 });
 
-// When a link in the menu is clicked, close the menu again
-navLinks.addEventListener("click", (e) => {
-    navLinks.classList.remove("open");
-    menuBtnIcon.setAttribute("class", "ri-menu-line");
+// Close menu when user clicks a link
+navLinks.addEventListener("click", () => {
+  navLinks.classList.remove("open");
+  menuBtnIcon.setAttribute("class", "ri-menu-line");
 });
 
-
-// ===== Log Out Function =====
-
-// This function runs when the user clicks "Log Out"
+// ===== Log Out =====
 async function logOutUser(event) {
-    event.preventDefault(); // Stop the link from going to another page
-
-    await localforage.removeItem("_Sparkles_user"); // Remove the saved user info from storage
-    location.href = "index.html"; // Go back to the homepage
+  event.preventDefault(); // stop normal link action
+  await localforage.removeItem("_Sparkles_user"); // clear saved user info
+  location.href = "index.html"; // send back home
 }
 
-
 // ===== Load and Show Products =====
-
 async function loadProducts() {
   try {
-    // Try to fetch (load) the product list from the file
+    // get product list file
     const response = await fetch("product.json");
-
-    // If something went wrong with the fetch, throw an error
     if (!response.ok) throw new Error("Network response was not ok");
 
-    // Convert the response to actual JavaScript object (array of products)
+    // turn the response into JS object
     const products = await response.json();
-    console.log(products); // Show them in the browser console for testing
+    console.log(products);
 
-    // Get the part of the page where we want to display products
-    const container = document.querySelector('#product-list');
-    container.innerHTML = ''; // Make sure it's empty before adding products
+    // get container where products go
+    const container = document.querySelector("#product-list");
+    container.innerHTML = "";
 
-    // Loop through each product and create a card for it
+    // loop each product and build a card
     products.forEach(product => {
-      const col = document.createElement('div');
-      col.className = 'col-md-4 col-sm-6 d-flex justify-content-center';
+      const col = document.createElement("div");
+      col.className = "col-md-4 col-sm-6 d-flex justify-content-center";
 
-      const card = document.createElement('div');
-      card.className = 'card m-2';
-      card.style.width = '18rem';
+      const card = document.createElement("div");
+      card.className = "card m-2";
+      card.style.width = "18rem";
 
-      // Fill the card with product details
       card.innerHTML = `
         <img src="${product.image}" class="card-img-top" alt="${product.name}">
         <div class="card-body d-flex flex-column">
@@ -95,27 +83,26 @@ async function loadProducts() {
       container.appendChild(col);
     });
 
-    // Handle the Add to Cart button clicks
-    container.addEventListener('click', async function (e) {
-      if (e.target.classList.contains('add-to-cart')) {
-        e.preventDefault(); // Stop the link from refreshing the page
+    // Add-to-Cart handler
+    container.addEventListener("click", async e => {
+      if (e.target.classList.contains("add-to-cart")) {
+        e.preventDefault();
 
-        // Get the product ID from the button
-        const productId = parseInt(e.target.getAttribute('data-id'));
+        // grab the product id
+        const productId = parseInt(e.target.getAttribute("data-id"));
 
-        // Find the full product info using the ID
+        // find the full product info
         const selectedProduct = products.find(p => p.id === productId);
 
-        // Get the cart from storage (or start a new one)
-        let cart = await localforage.getItem("cart") || [];
+        // get current cart
+        let cart = (await localforage.getItem("cart")) || [];
 
-        // Check if the item is already in the cart
+        // check if already exists
         const alreadyInCart = cart.some(item => item.id === selectedProduct.id);
 
-        // If it's not already there, add it
         if (!alreadyInCart) {
-          cart.push(selectedProduct); // Add item
-          await localforage.setItem('cart', cart); // Save updated cart
+          cart.push(selectedProduct);
+          await localforage.setItem("cart", cart);
           alert(`${selectedProduct.name} added to cart!`);
         } else {
           alert(`${selectedProduct.name} is already in your cart.`);
@@ -125,13 +112,11 @@ async function loadProducts() {
 
   } catch (error) {
     console.error("Error loading products:", error);
-
-    // If something went wrong, show an error message to the user
-    document.getElementById('product-list').innerHTML = `
+    document.getElementById("product-list").innerHTML = `
       <div class="alert alert-danger">Unable to load products. Please try again later.</div>
     `;
   }
 }
 
-// After the page finishes loading, run the loadProducts function
+// run product loader when page is ready
 document.addEventListener("DOMContentLoaded", loadProducts);
